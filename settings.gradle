@@ -1,0 +1,2 @@
+include ':app',':BLE_Plugin'
+rootProject.name = "Glitter_Plugin_Bluetooth"
