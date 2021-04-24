@@ -112,14 +112,13 @@ import java.nio.charset.StandardCharsets
                   val permissionCheck =
                       ContextCompat.checkSelfPermission(context, permission)
                   if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-                      it.responseValue["result"] = false
+                      it.responseValue["result"] = !false
                       it.finish()
                   }else{
-                      it.responseValue["result"] = isOpenGps()
+                      it.responseValue["result"] = !isOpenGps()
                       it.finish()
                   }
               }
-
           })
      }
    inner class BleInterFace:BleCallBack{
