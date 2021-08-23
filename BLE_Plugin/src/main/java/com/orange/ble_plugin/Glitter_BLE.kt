@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets
    * Ble開發套件
    * */
 
- class Glitter_BLE(var context: Context) {
+ class Glitter_BLE(var context: Context,var scanFilter:Array<String> ?= null) {
      var bleHelper: BleHelper = BleHelper(context,BleInterFace())
      val handler : Handler =Handler(Looper.getMainLooper())
       fun create(){
@@ -178,19 +178,21 @@ import java.nio.charset.StandardCharsets
 
        override fun scanBack(device: BluetoothDevice, scanRecord: BleBinary, rssi: Int) {
            try {
-               val map: MutableMap<String, Any> = mutableMapOf()
-               map["name"] = if (device.name == null) "undefine" else device.name
-               map["address"] = device.address
-               val rec: MutableMap<String, Any> = mutableMapOf()
-               rec["readHEX"] = scanRecord.readHEX()
-               rec["readBytes"] = scanRecord.readBytes()
-               rec["readUTF"] = String(rec["readBytes"] as ByteArray, StandardCharsets.UTF_8);
-               handler.post {
-                   GlitterActivity.instance().webRoot.evaluateJavascript(
-                       "glitter.share.bleCallBack.scanBack(" + Gson().toJson(map) + "," + Gson().toJson(
-                           rec
-                       ) + ",$rssi)", null
-                   )
+               if(scanFilter==null || scanFilter!!.any { device.name != null && device.name.contains(it) }){
+                   val map: MutableMap<String, Any> = mutableMapOf()
+                   map["name"] = if (device.name == null) "undefine" else device.name
+                   map["address"] = device.address
+                   val rec: MutableMap<String, Any> = mutableMapOf()
+                   rec["readHEX"] = scanRecord.readHEX()
+                   rec["readBytes"] = scanRecord.readBytes()
+                   rec["readUTF"] = String(rec["readBytes"] as ByteArray, StandardCharsets.UTF_8);
+                   handler.post {
+                       GlitterActivity.instance().webRoot.evaluateJavascript(
+                           "glitter.share.bleCallBack.scanBack(" + Gson().toJson(map) + "," + Gson().toJson(
+                               rec
+                           ) + ",$rssi)", null
+                       )
+                   }
                }
            } catch (e: Exception) {
            }
