@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     buildToolsVersion "29.0.3"
 
     defaultConfig {
@@ -42,6 +42,6 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation 'com.github.sam38124:JzBleHelper:7.6'
-    implementation 'com.github.sam38124:Glitter_Android:2.3.3'
+    implementation 'com.github.sam38124:Glitter_Android:2.5.3'
     implementation 'com.google.code.gson:gson:2.8.6'
 }
