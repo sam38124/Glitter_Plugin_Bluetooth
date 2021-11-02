@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -106,20 +107,36 @@ import java.nio.charset.StandardCharsets
          })
          //GpsIsEnable
           GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace("${glitterName}gpsEnable"){
-              for (permission in arrayOf(
-                  android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                  android.Manifest.permission.ACCESS_FINE_LOCATION
-              )) {
-                  val permissionCheck =
-                      ContextCompat.checkSelfPermission(context, permission)
-                  if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-                      it.responseValue["result"] = !false
-                      it.finish()
-                  }else{
-                      it.responseValue["result"] = !isOpenGps()
-                      it.finish()
+              if (Build.VERSION.SDK_INT >=  Build.VERSION_CODES.S) {
+                  for (permission in arrayOf(
+                      android.Manifest.permission.BLUETOOTH_SCAN
+                  )) {
+                      val permissionCheck = ContextCompat.checkSelfPermission(context, permission)
+                      if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+                          it.responseValue["result"] = !false
+                          it.finish()
+                      }else{
+                          it.responseValue["result"] = true
+                          it.finish()
+                      }
+                  }
+              }else{
+                  for (permission in arrayOf(
+                      android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                      android.Manifest.permission.ACCESS_FINE_LOCATION
+                  )) {
+                      val permissionCheck =
+                          ContextCompat.checkSelfPermission(context, permission)
+                      if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+                          it.responseValue["result"] = !false
+                          it.finish()
+                      }else{
+                          it.responseValue["result"] = !isOpenGps()
+                          it.finish()
+                      }
                   }
               }
+
           })
      }
    inner class BleInterFace:BleCallBack{
