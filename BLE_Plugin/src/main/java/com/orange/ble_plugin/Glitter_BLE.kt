@@ -107,36 +107,38 @@ import java.nio.charset.StandardCharsets
          })
          //GpsIsEnable
           GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace("${glitterName}NeedPermission"){
-              if (Build.VERSION.SDK_INT >=  Build.VERSION_CODES.S) {
-                  for (permission in arrayOf(
-                      android.Manifest.permission.BLUETOOTH_SCAN,
-                  )) {
-                      val permissionCheck = ContextCompat.checkSelfPermission(context, permission)
-                      if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-                          it.responseValue["result"] = true
-                          it.finish()
-                      }else{
-                          it.responseValue["result"] = false
-                          it.finish()
+              request->
+              var requestSuccess = 0
+              var requestCount=0
+              val notPermission:ArrayList<String> = arrayListOf()
+              val permission=if (Build.VERSION.SDK_INT >=  Build.VERSION_CODES.S) arrayOf(
+                  android.Manifest.permission.BLUETOOTH_SCAN,
+                  android.Manifest.permission.BLUETOOTH_ADVERTISE,
+                  android.Manifest.permission.BLUETOOTH_CONNECT
+              ) else arrayOf(
+                  android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                  android.Manifest.permission.ACCESS_FINE_LOCATION
+              )
+              GlitterActivity.instance().getPermission(permission, object : GlitterActivity.permission_C {
+                  override fun requestSuccess(a: String?) {
+                      requestCount += 1
+                      requestSuccess += 1
+                      if (requestCount == permission.size) {
+                          request.responseValue["result"]=false
+                          request.finish()
                       }
                   }
-              }else{
-                  for (permission in arrayOf(
-                      android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                      android.Manifest.permission.ACCESS_FINE_LOCATION
-                  )) {
-                      val permissionCheck =
-                          ContextCompat.checkSelfPermission(context, permission)
-                      if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-                          it.responseValue["result"] = true
-                          it.finish()
-                      }else{
-                          it.responseValue["result"] = false
-                          it.finish()
-                      }
-                  }
-              }
 
+                  override fun requestFalse(a: String?) {
+                      requestCount += 1
+                      notPermission.add(a.toString())
+                      if(requestCount==permission.size){
+                          request.responseValue["notPermission"]=notPermission
+                          request.responseValue["result"]=true
+                          request.finish()
+                      }
+                  }
+              })
           })
      }
    inner class BleInterFace:BleCallBack{
