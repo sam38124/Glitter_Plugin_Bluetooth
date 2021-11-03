@@ -106,17 +106,17 @@ import java.nio.charset.StandardCharsets
              it.finish()
          })
          //GpsIsEnable
-          GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace("${glitterName}gpsEnable"){
+          GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace("${glitterName}NeedPermission"){
               if (Build.VERSION.SDK_INT >=  Build.VERSION_CODES.S) {
                   for (permission in arrayOf(
-                      android.Manifest.permission.BLUETOOTH_SCAN
+                      android.Manifest.permission.BLUETOOTH_SCAN,
                   )) {
                       val permissionCheck = ContextCompat.checkSelfPermission(context, permission)
                       if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-                          it.responseValue["result"] = !false
+                          it.responseValue["result"] = true
                           it.finish()
                       }else{
-                          it.responseValue["result"] = true
+                          it.responseValue["result"] = false
                           it.finish()
                       }
                   }
@@ -128,10 +128,10 @@ import java.nio.charset.StandardCharsets
                       val permissionCheck =
                           ContextCompat.checkSelfPermission(context, permission)
                       if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-                          it.responseValue["result"] = !false
+                          it.responseValue["result"] = true
                           it.finish()
                       }else{
-                          it.responseValue["result"] = !isOpenGps()
+                          it.responseValue["result"] = false
                           it.finish()
                       }
                   }
