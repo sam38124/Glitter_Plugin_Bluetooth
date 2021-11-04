@@ -124,11 +124,10 @@ import java.nio.charset.StandardCharsets
                       requestCount += 1
                       requestSuccess += 1
                       if (requestCount == permission.size) {
-                          request.responseValue["result"]=false
+                          request.responseValue["result"]=if(Build.VERSION.SDK_INT >=  Build.VERSION_CODES.S) false else (!isOpenGps())
                           request.finish()
                       }
                   }
-
                   override fun requestFalse(a: String?) {
                       requestCount += 1
                       notPermission.add(a.toString())
