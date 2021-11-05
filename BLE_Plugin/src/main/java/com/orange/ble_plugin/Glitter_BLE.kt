@@ -14,7 +14,7 @@ import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.jianzhi.glitter.GlitterActivity
 import com.jianzhi.glitter.JavaScriptInterFace
-import com.jianzhi.glitter.util.GpsUtil
+import com.jianzhi.glitter.RequestFunction
 import com.jianzhi.jzblehelper.BleHelper
 import com.jianzhi.jzblehelper.callback.BleCallBack
 import com.jianzhi.jzblehelper.models.BleBinary
@@ -28,27 +28,28 @@ import java.nio.charset.StandardCharsets
      var bleHelper: BleHelper = BleHelper(context,BleInterFace())
      val handler : Handler =Handler(Looper.getMainLooper())
      var bleMap:MutableMap<String,JzClock> = mutableMapOf()
+     var callBack: RequestFunction? = null
       fun create(){
          val glitterName="Glitter_BLE"
          //Start
-         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}Start") {
+         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}_Start") {
              it.responseValue["result"] = true
              it.finish()
          })
          //StartScan
-         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}StartScan") {
+         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}_StartScan") {
              bleHelper.startScan()
              it.responseValue["result"] = true
              it.finish()
          })
          //StopScan
-         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}StopScan") {
+         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}_StopScan") {
              bleHelper.stopScan()
              it.responseValue["result"] = true
              it.finish()
          })
          //WriteHex
-         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}WriteHex") {
+         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}_WriteHex") {
              bleHelper.writeHex(
                  it.receiveValue["data"].toString(),
                  it.receiveValue["rxChannel"].toString(),
@@ -58,7 +59,7 @@ import java.nio.charset.StandardCharsets
              it.finish()
          })
          //WriteUtf
-         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}WriteUtf") {
+         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}_WriteUtf") {
              bleHelper.writeUtf(
                  it.receiveValue["data"].toString(),
                  it.receiveValue["rxChannel"].toString(),
@@ -67,7 +68,7 @@ import java.nio.charset.StandardCharsets
              it.finish()
          })
          //WriteBytes
-         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}WriteBytes") {
+         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}_WriteBytes") {
              bleHelper.writeBytes(
                  it.receiveValue["data"] as ByteArray,
                  it.receiveValue["rxChannel"].toString(),
@@ -77,17 +78,17 @@ import java.nio.charset.StandardCharsets
              it.finish()
          })
          //IsOpen
-         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}IsOpen") {
+         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}_IsOpen") {
              it.responseValue["result"] =bleHelper.bleadapter.isEnabled
              it.finish()
          })
          //IsDiscovering
-         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}IsDiscovering") {
+         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}_IsDiscovering") {
              it.responseValue["result"] = bleHelper.bleadapter.isDiscovering
              it.finish()
          })
          //Connect
-         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}Connect") { request ->
+         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}_Connect") { request ->
              val timeOut = (request.receiveValue["timeOut"] as Double).toInt()
              bleHelper.connect(request.receiveValue["address"].toString(), timeOut) {
                  request.responseValue["result"] = it
@@ -95,18 +96,18 @@ import java.nio.charset.StandardCharsets
              }
          })
          //DisConnect
-         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}DisConnect") {
+         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}_DisConnect") {
              bleHelper.disconnect()
              it.responseValue["result"] = true
              it.finish()
          })
          //IsConnect
-         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}IsConnect") {
+         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace( "${glitterName}_IsConnect") {
              it.responseValue["result"] = bleHelper.isConnect()
              it.finish()
          })
-         //GpsIsEnable
-          GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace("${glitterName}NeedPermission"){
+         //NeedPermission
+          GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace("${glitterName}_NeedPermission"){
               request->
               var requestSuccess = 0
               var requestCount=0
@@ -120,7 +121,7 @@ import java.nio.charset.StandardCharsets
                   android.Manifest.permission.ACCESS_FINE_LOCATION
               )
               GlitterActivity.instance().getPermission(permission, object : GlitterActivity.permission_C {
-                  override fun requestSuccess(a: String?) {
+                  override fun requestSuccess(a: String) {
                       requestCount += 1
                       requestSuccess += 1
                       if (requestCount == permission.size) {
@@ -128,7 +129,7 @@ import java.nio.charset.StandardCharsets
                           request.finish()
                       }
                   }
-                  override fun requestFalse(a: String?) {
+                  override fun requestFalse(a: String) {
                       requestCount += 1
                       notPermission.add(a.toString())
                       if(requestCount==permission.size){
@@ -139,27 +140,51 @@ import java.nio.charset.StandardCharsets
                   }
               })
           })
+          //SetCallBack
+          GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace("${glitterName}_SetCallBack"){
+              request ->
+              callBack=request
+          })
      }
    inner class BleInterFace:BleCallBack{
        override fun needGPS() {
-
-        //   handler.post { GlitterActivity.instance().webRoot.evaluateJavascript("glitter.share.bleCallBack.needGPS()", null) }
+           if(callBack!=null){
+               callBack!!.responseValue.clear()
+               callBack!!.responseValue["function"]="needGPS"
+               callBack!!.callBack()
+           }
        }
 
        override fun onConnectFalse() {
-           handler.post { GlitterActivity.instance().webRoot.evaluateJavascript("glitter.share.bleCallBack.onConnectFalse()", null) }
+           if(callBack!=null){
+               callBack!!.responseValue.clear()
+               callBack!!.responseValue["function"]="onConnectFalse"
+               callBack!!.callBack()
+           }
        }
 
        override fun onConnectSuccess() {
-           handler.post { GlitterActivity.instance().webRoot.evaluateJavascript("glitter.share.bleCallBack.onConnectSuccess()", null) }
+           if(callBack!=null){
+               callBack!!.responseValue.clear()
+               callBack!!.responseValue["function"]="onConnectSuccess"
+               callBack!!.callBack()
+           }
        }
 
        override fun onConnecting() {
-           handler.post { GlitterActivity.instance().webRoot.evaluateJavascript("glitter.share.bleCallBack.onConnecting()", null) }
+           if(callBack!=null){
+               callBack!!.responseValue.clear()
+               callBack!!.responseValue["function"]="onConnecting"
+               callBack!!.callBack()
+           }
        }
 
        override fun onDisconnect() {
-           handler.post { GlitterActivity.instance().webRoot.evaluateJavascript("glitter.share.bleCallBack.onDisconnect()", null) }
+           if(callBack!=null){
+               callBack!!.responseValue.clear()
+               callBack!!.responseValue["function"]="onDisconnect"
+               callBack!!.callBack()
+           }
        }
 
        override fun requestPermission(permission: ArrayList<String>) {
@@ -167,32 +192,25 @@ import java.nio.charset.StandardCharsets
            for (i in permission) {
                Log.e("JzBleMessage", "權限不足請先請求權限${i}")
            }
-           handler.post {
-               GlitterActivity.instance().webRoot.evaluateJavascript(
-                   "glitter.share.bleCallBack.requestPermission(${
-                       Gson().toJson(
-                           permission
-                       )
-                   })", null
-               )
+           if(callBack!=null){
+               callBack!!.responseValue.clear()
+               callBack!!.responseValue["function"]="requestPermission"
+               callBack!!.responseValue["data"]=permission
+               callBack!!.callBack()
            }
        }
 
        override fun rx(a: BleBinary) {
-           Thread {
-               val map: MutableMap<String, Any> = mutableMapOf()
-               map["readHEX"] = a.readHEX()
-               map["readBytes"] = a.readBytes()
-               map["readUTF"] = a.readUTF()
-               // Log.e("JzBleMessage","RX:"+a.readHEX())
-               handler.post {
-                   GlitterActivity.instance().webRoot.evaluateJavascript(
-                       "glitter.share.bleCallBack.rx(" + Gson().toJson(map) + ")",
-                       null
-                   )
-               }
-           }.start()
-
+           val map: MutableMap<String, Any> = mutableMapOf()
+           map["readHEX"] = a.readHEX()
+           map["readBytes"] = a.readBytes()
+           map["readUTF"] = a.readUTF()
+           if(callBack!=null){
+               callBack!!.responseValue.clear()
+               callBack!!.responseValue["function"]="rx"
+               callBack!!.responseValue["data"]=map
+               callBack!!.callBack()
+           }
        }
 
        override fun scanBack(device: BluetoothDevice, scanRecord: BleBinary, rssi: Int) {
@@ -206,12 +224,12 @@ import java.nio.charset.StandardCharsets
                        rec["readHEX"] = scanRecord.readHEX()
                        rec["readBytes"] = scanRecord.readBytes()
                        rec["readUTF"] = String(rec["readBytes"] as ByteArray, StandardCharsets.UTF_8);
-                       handler.post {
-                           GlitterActivity.instance().webRoot.evaluateJavascript(
-                               "glitter.share.bleCallBack.scanBack(" + Gson().toJson(map) + "," + Gson().toJson(
-                                   rec
-                               ) + ",$rssi)", null
-                           )
+                       if(callBack!=null){
+                           callBack!!.responseValue.clear()
+                           callBack!!.responseValue["function"]="scanBack"
+                           callBack!!.responseValue["device"]=map
+                           callBack!!.responseValue["advertise"]=rec
+                           callBack!!.callBack()
                        }
                    }
                }
@@ -235,11 +253,11 @@ import java.nio.charset.StandardCharsets
            map["readBytes"] = b.readBytes()
            map["readUTF"] = b.readUTF()
            Log.e("JzBleMessage", "TX:" + b.readHEX())
-           handler.post {
-               GlitterActivity.instance().webRoot.evaluateJavascript(
-                   "glitter.share.bleCallBack.tx(" + Gson().toJson(map) + ")",
-                   null
-               )
+           if(callBack!=null){
+               callBack!!.responseValue.clear()
+               callBack!!.responseValue["function"]="tx"
+               callBack!!.responseValue["data"]=map
+               callBack!!.callBack()
            }
        }
    }
