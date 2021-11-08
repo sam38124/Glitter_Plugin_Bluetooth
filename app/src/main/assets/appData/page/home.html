@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../glitterBundle/ControlInstance.js"></script>
+</head>
+<style>
+    .bottom {
+        width: 200px;
+        background-color: dodgerblue;
+        color: whitesmoke;
+        border-radius: 10px;
+        min-height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px;
+        margin: 10px;
+    }
+</style>
+<body>
+<script>
+    lifeCycle.onCreate = function () {
+
+    }
+    lifeCycle.onCreateView = function () {
+        return `
+        <div class="bottom" onclick="getBlePermission()">取得藍芽全限</div>
+          <div class="bottom" onclick="startScan()">掃描藍芽</div>
+            <div class="bottom" onclick="stopScan()">停止掃描藍芽</div>
+              <div class="bottom" onclick="stopScan()">藍芽連線</div>
+        `
+    }
+
+    function isDisCover() {
+        /**
+         * hexData->要傳送的HexString
+         * rxUUID->要接收資料的通道
+         * txUUID->要傳送資料的通道
+         * */
+        glitter.runJsInterFace("Glitter_BLE_WriteHex", {
+            data: hexData,
+            rxChannel: rxUUID,
+            txChannel: txUUID
+        }, function (response) {
+            console.log(response.result)
+        })
+    }
+
+    function startScan() {
+        glitter.runJsInterFace("Glitter_BLE_StartScan", {}, function (response) {
+            console.log(response.result)
+        })
+    }
+
+    function stopScan() {
+        glitter.runJsInterFace("Glitter_BLE_StopScan", {}, function (response) {
+            alert(JSON.stringify(response))
+        })
+    }
+
+    function getBlePermission() {
+        glitter.runJsInterFace("Glitter_BLE_NeedPermission", {}, function (response) {
+            if (response.result) {
+                alert("權限請求失敗")
+            } else {
+                alert("權限請求成功")
+            }
+        })
+    }
+</script>
+</body>
+</html>
