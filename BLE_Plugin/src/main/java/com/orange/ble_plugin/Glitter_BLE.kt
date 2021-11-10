@@ -220,6 +220,7 @@ import java.nio.charset.StandardCharsets
                map["name"] = if (device.name == null) "undefine" else device.name
                map["address"] = device.address
                map["readHEX"] = scanRecord.readHEX()
+               map["rssi"] = rssi
                map["readBytes"] = scanRecord.readBytes()
                map["readUTF"] = String(map["readBytes"] as ByteArray, StandardCharsets.UTF_8);
                scanList.add(map)
