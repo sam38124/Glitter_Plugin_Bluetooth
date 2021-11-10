@@ -212,34 +212,24 @@ import java.nio.charset.StandardCharsets
                callBack!!.callBack()
            }
        }
-
+      var clock=JzClock()
+       var scanList:ArrayList<MutableMap<String, Any>> = arrayListOf()
        override fun scanBack(device: BluetoothDevice, scanRecord: BleBinary, rssi: Int) {
            try {
-               val runScanUnit={
-                   if(scanFilter==null || scanFilter!!.any { device.name != null && device.name.contains(it) }){
-                       val map: MutableMap<String, Any> = mutableMapOf()
-                       map["name"] = if (device.name == null) "undefine" else device.name
-                       map["address"] = device.address
-                       val rec: MutableMap<String, Any> = mutableMapOf()
-                       rec["readHEX"] = scanRecord.readHEX()
-                       rec["readBytes"] = scanRecord.readBytes()
-                       rec["readUTF"] = String(rec["readBytes"] as ByteArray, StandardCharsets.UTF_8);
-                       if(callBack!=null){
-                           callBack!!.responseValue.clear()
-                           callBack!!.responseValue["function"]="scanBack"
-                           callBack!!.responseValue["device"]=map
-                           callBack!!.responseValue["advertise"]=rec
-                           callBack!!.callBack()
-                       }
-                   }
-               }
-               if(bleMap[device.address]==null){
-                   bleMap[device.address]= JzClock()
-                   runScanUnit()
-               }else{
-                   if(bleMap[device.address]!!.stop()>scanTiming){
-                       bleMap[device.address]!!.zeroing()
-                       runScanUnit()
+               val map: MutableMap<String, Any> = mutableMapOf()
+               map["name"] = if (device.name == null) "undefine" else device.name
+               map["address"] = device.address
+               map["readHEX"] = scanRecord.readHEX()
+               map["readBytes"] = scanRecord.readBytes()
+               map["readUTF"] = String(map["readBytes"] as ByteArray, StandardCharsets.UTF_8);
+               scanList.add(map)
+               if(clock.stop()>1){
+                   if(callBack!=null){
+                       callBack!!.responseValue.clear()
+                       callBack!!.responseValue["function"]="scanBack"
+                       callBack!!.responseValue["device"]=scanList
+                       callBack!!.callBack()
+                       scanList.clear()
                    }
                }
            } catch (e: Exception) {
