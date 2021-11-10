@@ -224,6 +224,7 @@ import java.nio.charset.StandardCharsets
                map["readUTF"] = String(map["readBytes"] as ByteArray, StandardCharsets.UTF_8);
                scanList.add(map)
                if(clock.stop()>1){
+                   clock.zeroing()
                    if(callBack!=null){
                        callBack!!.responseValue.clear()
                        callBack!!.responseValue["function"]="scanBack"
