@@ -2,7 +2,7 @@ package com.orange.ble_plugin
 
 import java.util.*
 
-class JzClock{
+class JzClock2{
     var past = Date()
 
     fun zeroing(){

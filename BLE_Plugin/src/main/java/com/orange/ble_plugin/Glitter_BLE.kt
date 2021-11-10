@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets
  class Glitter_BLE(var context: Context,var scanFilter:Array<String> ?= null,var scanTiming:Double=1.0) {
      var bleHelper: BleHelper = BleHelper(context,BleInterFace())
      val handler : Handler =Handler(Looper.getMainLooper())
-     var bleMap:MutableMap<String,JzClock> = mutableMapOf()
+     var bleMap:MutableMap<String, JzClock2> = mutableMapOf()
      var callBack: RequestFunction? = null
       fun create(){
          val glitterName="Glitter_BLE"
@@ -212,7 +212,7 @@ import java.nio.charset.StandardCharsets
                callBack!!.callBack()
            }
        }
-      var clock=JzClock()
+      var clock=JzClock2()
        var scanList:ArrayList<MutableMap<String, Any>> = arrayListOf()
        override fun scanBack(device: BluetoothDevice, scanRecord: BleBinary, rssi: Int) {
            try {
