@@ -234,6 +234,7 @@ class Glitter_BLE(var context: Context, var scanFilter: Array<String>? = null, v
                         callBack!!.responseValue["function"] = "scanBack"
                         callBack!!.responseValue["device"] = scanList.clone()
                         callBack!!.callBack()
+
                         scanList.clear()
                     }
                 }
