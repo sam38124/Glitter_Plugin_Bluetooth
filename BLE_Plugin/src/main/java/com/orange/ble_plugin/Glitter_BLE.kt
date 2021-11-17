@@ -50,33 +50,52 @@ class Glitter_BLE(var context: Context, var scanFilter: Array<String>? = null, v
         })
         //WriteHex
         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace("${glitterName}_WriteHex") {
-            bleHelper.writeHex(
-                it.receiveValue["data"].toString(),
-                it.receiveValue["rxChannel"].toString(),
-                it.receiveValue["txChannel"].toString(),
-            )
-            it.responseValue["result"] = true
-            it.finish()
+            try {
+                bleHelper.writeHex(
+                    it.receiveValue["data"].toString(),
+                    it.receiveValue["rxChannel"].toString(),
+                    it.receiveValue["txChannel"].toString(),
+                )
+                it.responseValue["result"] = true
+                it.finish()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                it.responseValue["result"] = false
+                it.finish()
+            }
         })
         //WriteUtf
         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace("${glitterName}_WriteUtf") {
-            bleHelper.writeUtf(
-                it.receiveValue["data"].toString(),
-                it.receiveValue["rxChannel"].toString(),
-                it.receiveValue["txChannel"].toString()
-            )
-            it.responseValue["result"] = true
-            it.finish()
+            try {
+                bleHelper.writeUtf(
+                    it.receiveValue["data"].toString(),
+                    it.receiveValue["rxChannel"].toString(),
+                    it.receiveValue["txChannel"].toString()
+                )
+                it.responseValue["result"] = true
+                it.finish()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                it.responseValue["result"] = false
+                it.finish()
+            }
+
         })
         //WriteBytes
         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace("${glitterName}_WriteBytes") {
-            bleHelper.writeBytes(
-                it.receiveValue["data"] as ByteArray,
-                it.receiveValue["rxChannel"].toString(),
-                it.receiveValue["txChannel"].toString()
-            )
-            it.responseValue["result"] = true
-            it.finish()
+            try {
+                bleHelper.writeBytes(
+                    it.receiveValue["data"] as ByteArray,
+                    it.receiveValue["rxChannel"].toString(),
+                    it.receiveValue["txChannel"].toString()
+                )
+                it.responseValue["result"] = true
+                it.finish()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                it.responseValue["result"] = false
+                it.finish()
+            }
         })
         //IsOpen
         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace("${glitterName}_IsOpen") {
