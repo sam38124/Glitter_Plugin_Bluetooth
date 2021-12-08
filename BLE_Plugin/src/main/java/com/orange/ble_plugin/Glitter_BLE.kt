@@ -19,6 +19,7 @@ import com.jianzhi.jzblehelper.BleHelper
 import com.jianzhi.jzblehelper.callback.BleCallBack
 import com.jianzhi.jzblehelper.models.BleBinary
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.CopyOnWriteArrayList
 
 /*
    * Ble開發套件
@@ -235,7 +236,7 @@ class Glitter_BLE(var context: Context, var scanFilter: Array<String>? = null, v
         }
 
         var clock = JzClock2()
-        var scanList: ArrayList<MutableMap<String, Any>> = arrayListOf()
+        var scanList: CopyOnWriteArrayList<MutableMap<String, Any>> = CopyOnWriteArrayList()
         override fun scanBack(device: BluetoothDevice, scanRecord: BleBinary, rssi: Int) {
             try {
                 val map: MutableMap<String, Any> = mutableMapOf()
