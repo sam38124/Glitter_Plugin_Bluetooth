@@ -109,7 +109,7 @@ class Glitter_BLE(var context: Context, var scanFilter: Array<String>? = null, v
         })
         //IsDiscovering
         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace("${glitterName}_IsDiscovering") {
-            it.responseValue["result"] = bleHelper.bleadapter.isDiscovering
+            it.responseValue["result"] = BleHelper.isScanning
             it.finish()
         })
         //Connect
