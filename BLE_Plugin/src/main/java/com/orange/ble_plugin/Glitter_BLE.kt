@@ -1,5 +1,6 @@
 package com.orange.ble_plugin
 
+import android.app.ActivityManager
 import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.pm.PackageManager
@@ -39,8 +40,11 @@ class Glitter_BLE(var context: Context, var scanFilter: Array<String>? = null, v
         })
         //StartScan
         GlitterActivity.addJavacScriptInterFace(JavaScriptInterFace("${glitterName}_StartScan") {
-            bleHelper.startScan()
-            it.responseValue["result"] = true
+            if(appOnForeground()){
+                it.responseValue["result"] = bleHelper.startScan()
+            }else{
+                it.responseValue["result"] = false
+            }
             it.finish()
         })
         //StopScan
@@ -289,6 +293,16 @@ class Glitter_BLE(var context: Context, var scanFilter: Array<String>? = null, v
         val network =
             locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
         return gps || network
+    }
+    open fun appOnForeground(): Boolean {
+        val appProcesses: List<ActivityManager.RunningAppProcessInfo> =
+            (GlitterActivity.instance().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).runningAppProcesses
+        for (appProcess in appProcesses) {
+            if (appProcess.processName.equals(GlitterActivity.instance().applicationContext.packageName) && appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+                return true
+            }
+        }
+        return false
     }
 }
 
