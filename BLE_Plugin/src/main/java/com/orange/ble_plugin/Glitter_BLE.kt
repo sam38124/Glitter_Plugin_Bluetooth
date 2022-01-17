@@ -175,41 +175,41 @@ class Glitter_BLE(var context: Context, var scanFilter: Array<String>? = null, v
     inner class BleInterFace : BleCallBack {
         override fun needGPS() {
             if (callBack != null) {
-                callBack!!.responseValue.clear()
-                callBack!!.responseValue["function"] = "needGPS"
-                callBack!!.callBack()
+                val callBack=getNewRequest()
+                callBack.responseValue["function"] = "needGPS"
+                callBack.callBack()
             }
         }
 
         override fun onConnectFalse() {
             if (callBack != null) {
-                callBack!!.responseValue.clear()
-                callBack!!.responseValue["function"] = "onConnectFalse"
-                callBack!!.callBack()
+                val callBack=getNewRequest()
+                callBack.responseValue["function"] = "onConnectFalse"
+                callBack.callBack()
             }
         }
 
         override fun onConnectSuccess() {
             if (callBack != null) {
-                callBack!!.responseValue.clear()
-                callBack!!.responseValue["function"] = "onConnectSuccess"
-                callBack!!.callBack()
+                val callBack=getNewRequest()
+                callBack.responseValue["function"] = "onConnectSuccess"
+                callBack.callBack()
             }
         }
 
         override fun onConnecting() {
             if (callBack != null) {
-                callBack!!.responseValue.clear()
-                callBack!!.responseValue["function"] = "onConnecting"
-                callBack!!.callBack()
+                val callBack=getNewRequest()
+                callBack.responseValue["function"] = "onConnecting"
+                callBack.callBack()
             }
         }
 
         override fun onDisconnect() {
             if (callBack != null) {
-                callBack!!.responseValue.clear()
-                callBack!!.responseValue["function"] = "onDisconnect"
-                callBack!!.callBack()
+                val callBack=getNewRequest()
+                callBack.responseValue["function"] = "onDisconnect"
+                callBack.callBack()
             }
         }
 
@@ -219,10 +219,10 @@ class Glitter_BLE(var context: Context, var scanFilter: Array<String>? = null, v
                 Log.e("JzBleMessage", "權限不足請先請求權限${i}")
             }
             if (callBack != null) {
-                callBack!!.responseValue.clear()
-                callBack!!.responseValue["function"] = "requestPermission"
-                callBack!!.responseValue["data"] = permission
-                callBack!!.callBack()
+                val callBack=getNewRequest()
+                callBack.responseValue["function"] = "requestPermission"
+                callBack.responseValue["data"] = permission
+                callBack.callBack()
             }
         }
 
@@ -232,10 +232,10 @@ class Glitter_BLE(var context: Context, var scanFilter: Array<String>? = null, v
             map["readBytes"] = a.readBytes()
             map["readUTF"] = a.readUTF()
             if (callBack != null) {
-                callBack!!.responseValue.clear()
-                callBack!!.responseValue["function"] = "rx"
-                callBack!!.responseValue["data"] = map
-                callBack!!.callBack()
+                val callBack=getNewRequest()
+                callBack.responseValue["function"] = "rx"
+                callBack.responseValue["data"] = map
+                callBack.callBack()
             }
         }
 
@@ -254,11 +254,10 @@ class Glitter_BLE(var context: Context, var scanFilter: Array<String>? = null, v
                 if (clock.stop() > 1) {
                     clock.zeroing()
                     if (callBack != null) {
-                        callBack!!.responseValue.clear()
-                        callBack!!.responseValue["function"] = "scanBack"
-                        callBack!!.responseValue["device"] = scanList.clone()
-                        callBack!!.callBack()
-
+                        val callBack=getNewRequest()
+                        callBack.responseValue["function"] = "scanBack"
+                        callBack.responseValue["device"] = scanList.clone()
+                        callBack.callBack()
                         scanList.clear()
                     }
                 }
@@ -274,14 +273,21 @@ class Glitter_BLE(var context: Context, var scanFilter: Array<String>? = null, v
             map["readUTF"] = b.readUTF()
             Log.e("JzBleMessage", "TX:" + b.readHEX())
             if (callBack != null) {
-                callBack!!.responseValue.clear()
-                callBack!!.responseValue["function"] = "tx"
-                callBack!!.responseValue["data"] = map
-                callBack!!.callBack()
+                val callBack=getNewRequest()
+                callBack.responseValue["function"] = "tx"
+                callBack.responseValue["data"] = map
+                callBack.callBack()
             }
         }
     }
-
+    /**
+     * 取得新的實例
+     */
+    fun getNewRequest():RequestFunction{
+        val requestFunction=RequestFunction(mutableMapOf())
+        requestFunction.calb=callBack!!.calb
+        return requestFunction
+    }
     /**
      * 判斷GPS是否開啟，GPS或者AGPS開啟一個就認為是開啟的
      */
