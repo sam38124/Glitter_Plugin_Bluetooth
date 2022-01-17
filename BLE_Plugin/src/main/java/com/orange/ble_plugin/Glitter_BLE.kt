@@ -285,7 +285,15 @@ class Glitter_BLE(var context: Context, var scanFilter: Array<String>? = null, v
      */
     fun getNewRequest():RequestFunction{
         val requestFunction=RequestFunction(mutableMapOf())
-        requestFunction.calb=callBack!!.calb
+        requestFunction.calb={
+            handler.post {
+                GlitterActivity.instance().webRoot.evaluateJavascript(
+                    """
+               glitter.callBackList.get(${callBack!!.callBackID})(${Gson().toJson(requestFunction.responseValue)});
+                """.trimIndent(), null
+                )
+            }
+        }
         return requestFunction
     }
     /**
